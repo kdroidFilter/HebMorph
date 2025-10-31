@@ -28,9 +28,10 @@ import org.apache.lucene.search.DocIdSetIterator;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreMode;
+import org.apache.lucene.search.QueryVisitor;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.RAMDirectory;
+import org.apache.lucene.store.ByteBuffersDirectory;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -63,7 +64,7 @@ public class TermPositionVectorTest extends TestBase {
 
     @Test
     public void storesPositionCorrectly() throws Exception {
-        indexDirectory = new RAMDirectory();
+        indexDirectory = new ByteBuffersDirectory();
 
         IndexWriterConfig config = new IndexWriterConfig(analyzer); //use of Version, need to look at this.
         config.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
@@ -106,10 +107,26 @@ public class TermPositionVectorTest extends TestBase {
         TopDocs td = searcher.search(q, searcher.getIndexReader().maxDoc());
 
         int num = td.scoreDocs[0].doc;
-        Terms terms = searcher.getIndexReader().getTermVectors(num).terms("Text");
+        final var leaves = searcher.getIndexReader().leaves();
+        int subIndex = ReaderUtil.subIndex(num, leaves);
+        LeafReaderContext leaf = leaves.get(subIndex);
+        int docId = num - leaf.docBase;
+        Terms terms = leaf.reader().terms("Text");
 
         Set<Term> trms_list = new HashSet<>();
-        searcher.createWeight(q, ScoreMode.COMPLETE, 1.0f).extractTerms(trms_list);
+        q.visit(new QueryVisitor() {
+            @Override
+            public boolean acceptField(String field) {
+                return true;
+            }
+
+            @Override
+            public void consumeTerms(Query query, Term... terms) {
+                for (Term t : terms) {
+                    trms_list.add(t);
+                }
+            }
+        });
 //        q.extractTerms(trms_list);
 
         for (Term t : trms_list) {
@@ -117,7 +134,7 @@ public class TermPositionVectorTest extends TestBase {
             boolean isFound = termsEnum.seekExact(t.bytes());
             Assert.assertTrue(isFound);
 
-            PostingsEnum dpEnum = termsEnum.postings(null);
+            PostingsEnum dpEnum = termsEnum.postings(null, PostingsEnum.POSITIONS);
             assertTrue(dpEnum.nextDoc() != DocIdSetIterator.NO_MORE_DOCS);
             int pos = dpEnum.nextPosition();
             //assertEquals(expectedPosition, dpEnum.startOffset());

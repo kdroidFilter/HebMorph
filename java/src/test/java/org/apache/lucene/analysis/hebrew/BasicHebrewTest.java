@@ -32,7 +32,7 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.RAMDirectory;
+import org.apache.lucene.store.ByteBuffersDirectory;
 import org.junit.*;
 
 import java.io.IOException;
@@ -148,7 +148,7 @@ public class BasicHebrewTest extends TestBase {
     }
 
     private int findInText(String whatToIndex, String whatToSearch) throws Exception {
-        final Directory d = new RAMDirectory();
+        final Directory d = new ByteBuffersDirectory();
 
         IndexWriterConfig config = new IndexWriterConfig(analyzer); //use of Version, need to look at this.
         config.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
@@ -169,4 +169,3 @@ public class BasicHebrewTest extends TestBase {
         return hits.length;
     }
 }
-

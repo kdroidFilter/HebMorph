@@ -20,7 +20,7 @@ package org.apache.lucene.analysis.hebrew;
 import com.code972.hebmorph.DictionaryLoader;
 import com.code972.hebmorph.datastructures.DictHebMorph;
 import com.code972.hebmorph.hspell.HSpellDictionaryLoader;
-import org.apache.lucene.analysis.BaseTokenStreamTestCase;
+import org.apache.lucene.tests.analysis.BaseTokenStreamTestCase;
 import org.junit.AfterClass;
 
 import java.io.IOException;
