@@ -1,0 +1,81 @@
+plugins {
+    `java-library`
+    `maven-publish`
+    signing
+}
+
+group = "com.code972.hebmorph"
+version = "8.0.0"
+description = "Enabling Hebrew search in Lucene. Part of the HebMorph project, for making Hebrew properly searchable"
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+    withSourcesJar()
+    withJavadocJar()
+}
+
+tasks.withType<JavaCompile>().configureEach {
+    options.encoding = "UTF-8"
+    if (JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_1_9)) {
+        options.release.set(8)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    val luceneVersion = project.version.toString()
+
+    api("org.apache.lucene:lucene-core:$luceneVersion")
+    api("org.apache.lucene:lucene-analyzers-common:$luceneVersion")
+    api("org.apache.lucene:lucene-queryparser:$luceneVersion")
+
+    testImplementation("org.apache.lucene:lucene-memory:$luceneVersion")
+    testImplementation("org.apache.lucene:lucene-test-framework:$luceneVersion")
+    testImplementation("org.apache.commons:commons-lang3:3.6")
+    testImplementation("junit:junit:4.13.2")
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+            groupId = project.group.toString()
+            artifactId = "hebmorph-lucene"
+            version = project.version.toString()
+
+            // ensure sources/javadoc jars are attached
+            artifact(tasks.named("sourcesJar"))
+            artifact(tasks.named("javadocJar"))
+
+            pom {
+                name.set("hebmorph-lucene")
+                description.set(project.description)
+                url.set("http://code972.com/hebmorph")
+                licenses {
+                    license {
+                        name.set("Affero GPL3")
+                        url.set("http://www.gnu.org/licenses/agpl.html")
+                        distribution.set("repo")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("synhershko")
+                        name.set("Itamar Syn-Hershko")
+                        email.set("itamar@code972.com")
+                    }
+                }
+                scm {
+                    url.set("https://github.com/synhershko/HebMorph")
+                    connection.set("scm:git:ssh://git@github.com/synhershko/HebMorph.git")
+                    developerConnection.set("scm:git:ssh://git@github.com/synhershko/HebMorph.git")
+                }
+            }
+        }
+    }
+}
+
