@@ -79,3 +79,14 @@ publishing {
     }
 }
 
+tasks.withType<Test>().configureEach {
+    val prop = (project.findProperty("hebmorph.hspell.path") as String?) ?: System.getenv("HEBMORPH_HSPELL_PATH")
+    if (prop != null && prop.isNotBlank()) {
+        systemProperty("hebmorph.hspell.path", prop)
+    } else {
+        val fallback = project.projectDir.toPath().resolve("../hspell-data-files").normalize().toFile()
+        if (fallback.exists()) {
+            systemProperty("hebmorph.hspell.path", fallback.absolutePath)
+        }
+    }
+}

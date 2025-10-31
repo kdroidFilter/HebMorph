@@ -28,12 +28,63 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 
 public abstract class TestBase {
-    public static String DICT_PATH = "./../hspell-data-files/";
     private static DictHebMorph dict;
+
+    public static String DICT_PATH = null;
+
+    static {
+        try {
+            DICT_PATH = resolveDictPath();
+        } catch (Exception ignored) {
+            // keep default relative path to avoid NPE; loader will error nicely if missing
+            DICT_PATH = "../hspell-data-files/";
+        }
+    }
+
+    private static String resolveDictPath() throws IOException {
+        if (DICT_PATH != null) return DICT_PATH;
+
+        // 1) System property override
+        String sysProp = System.getProperty("hebmorph.hspell.path");
+        if (sysProp != null && sysProp.trim().length() > 0) {
+            DICT_PATH = ensureTrailingSlash(new File(sysProp).getCanonicalPath());
+            return DICT_PATH;
+        }
+
+        // 2) Environment variable override
+        String env = System.getenv("HEBMORPH_HSPELL_PATH");
+        if (env != null && env.trim().length() > 0) {
+            DICT_PATH = ensureTrailingSlash(new File(env).getCanonicalPath());
+            return DICT_PATH;
+        }
+
+        // 3) Try common relative locations from current working dir
+        String[] bases = new String[] {".", "..", "../..", "../../.."};
+        for (String base : bases) {
+            File f = new File(base + "/hspell-data-files");
+            if (f.exists() && f.isDirectory()) {
+                DICT_PATH = ensureTrailingSlash(f.getCanonicalPath());
+                return DICT_PATH;
+            }
+        }
+
+        // 4) Fallback to default expected sibling path for repo layout
+        File sibling = new File("../hspell-data-files");
+        if (sibling.exists() && sibling.isDirectory()) {
+            DICT_PATH = ensureTrailingSlash(sibling.getCanonicalPath());
+            return DICT_PATH;
+        }
+
+        throw new IOException("Cannot locate hspell-data-files. Set -Dhebmorph.hspell.path or HEBMORPH_HSPELL_PATH env var.");
+    }
+
+    private static String ensureTrailingSlash(String p) {
+        return p.endsWith("/") ? p : (p + "/");
+    }
 
     protected synchronized DictHebMorph getDictionary() throws IOException {
         if (dict == null) {
-            dict = new HSpellDictionaryLoader().loadDictionaryFromPath(DICT_PATH);
+            dict = new HSpellDictionaryLoader().loadDictionaryFromPath(resolveDictPath());
         }
         return dict;
     }
