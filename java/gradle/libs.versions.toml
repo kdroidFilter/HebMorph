@@ -1,0 +1,14 @@
+[versions]
+lucene = "10.3.1"
+commons-lang3 = "3.6"
+junit4 = "4.13.2"
+
+[libraries]
+lucene-core = { module = "org.apache.lucene:lucene-core", version.ref = "lucene" }
+lucene-analysis-common = { module = "org.apache.lucene:lucene-analysis-common", version.ref = "lucene" }
+lucene-queryparser = { module = "org.apache.lucene:lucene-queryparser", version.ref = "lucene" }
+lucene-memory = { module = "org.apache.lucene:lucene-memory", version.ref = "lucene" }
+lucene-test-framework = { module = "org.apache.lucene:lucene-test-framework", version.ref = "lucene" }
+commons-lang3 = { module = "org.apache.commons:commons-lang3", version.ref = "commons-lang3" }
+junit4 = { module = "junit:junit", version.ref = "junit4" }
+
