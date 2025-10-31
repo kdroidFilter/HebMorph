@@ -1,130 +1,87 @@
-HebMorph is an open-source effort for making Hebrew properly searchable by various IR software libraries, while maintaining decent recall, precision and relevancy in retrievals. All code and files are released under the GNU Affero General Public License version 3.
+HebMorph enables high‑quality Hebrew search with Apache Lucene by providing tokenization, normalization, and morphology support tailored for Hebrew. The project aims for strong recall and precision, and is released under the GNU Affero General Public License v3.
 
-More details at http://code972.com/HebMorph
+More details: http://code972.com/HebMorph
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.code972.hebmorph/hebmorph-lucene/badge.png)](http://mvnrepository.com/artifact/com.code972.hebmorph/hebmorph-lucene)
-[![Build Status](https://travis-ci.org/synhershko/HebMorph.svg?branch=master)](https://travis-ci.org/synhershko/HebMorph)
+Note: The .NET codebase and legacy components were removed. The maintained codebase is the Java Lucene module published as `hebmorph-lucene`.
 
-## Lucene / Elasticsearch compatibility
+## Compatibility
 
-Since March 2017 hebmorph-lucene is being released for every Lucene/Solr version, with a matching major version number (most of the time minor as well). Matching Elasticsearch plugin versions are also available, see https://github.com/synhershko/elasticsearch-analysis-hebrew.
+- HebMorph releases track Apache Lucene’s versions. Artifact versions generally match the Lucene version they target.
+- For Elasticsearch, use the dedicated plugin: https://github.com/synhershko/elasticsearch-analysis-hebrew
 
-<table>
-	<thead>
-		<tr>
-			<td>hebmorph-lucene version</td>
-			<td>Lucene version</td>
-			<td>Elasticsearch version</td>
-			<td>Release date</td>
-		</tr>
-	</thead>
-	<tbody>
-		<tr>
-			<td>6.2.x</td>
-			<td>6.1.x -> 6.2.x</td>
-			<td>5.1.x -> 5.2.x</td>
-			<td>3/2017</td>
-		</tr>
-		<tr>
-			<td>6.0.0</td>
-			<td>6.0.x</td>
-			<td>5.0.x</td>
-			<td>1/2017</td>
-		</tr>
-		<tr>
-			<td>2.4.0</td>
-			<td>5.5.x</td>
-			<td>2.4.x</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>2.3.x</td>
-			<td>5.4.x</td>
-			<td>2.2.x -> 2.3.x</td>
-			<td>4/2/2016</td>
-		</tr>
-		<tr>
-			<td>2.2.x</td>
-			<td>5.3.x</td>
-			<td>2.0.x -> 2.1.x</td>
-			<td>4/2/2016</td>
-		</tr>
-		<tr>
-			<td>2.1.x</td>
-			<td>4.10.4</td>
-			<td>1.6 -> 1.7.x</td>
-			<td>4/2/2016</td>
-		</tr>
-		<tr>
-			<td>2.0.x</td>
-			<td>4.10.x</td>
-			<td>1.4.x, 1.5.x</td>
-			<td>24/3/2015</td>
-		</tr>
-		<tr>
-			<td>1.5.0</td>
-			<td>4.9.0</td>
-			<td>1.3.x</td>
-			<td>9/9/2014</td>
-		</tr>
-		<tr>
-			<td>1.4.x</td>
-			<td>4.8.x</td>
-			<td>1.x -> 1.2.x</td>
-			<td>August 2014</td>
-		</tr>
-		<tr>
-			<td>1.3.x</td>
-			<td>4.6.x</td>
-			<td>0.90.8 -> 0.90.13</td>
-			<td>June 2014</td>
-		</tr>
-		<tr>
-			<td>1.2.0</td>
-			<td>4.5.x</td>
-			<td>0.90.6, 0.90.7</td>
-			<td>10/11/2013</td>
-		</tr>
-    <tr>
-			<td>1.1.0</td>
-			<td>4.4.0</td>
-			<td>0.90.3 -> 0.90.5</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>1.0.0</td>
-			<td>&lt;= 4.3.0</td>
-			<td>&lt;= 0.90.2</td>
-			<td></td>
-		</tr>
-	</tbody>
-</table>
+## Getting the Library
 
-Tutorial for integrating HebMorph with Elasticsearch can be found here http://code972.com/blog/2013/08/129-hebrew-search-with-elasticsearch-and-hebmorph
+This project is not published to Maven Central yet. Use one of the following options:
 
-## Get it from Maven Central
+- Build from source and depend on modules directly.
+- Publish to your local Maven cache and depend on it from your app:
+  
+  1) Publish locally
+  
+  ./gradlew publishToMavenLocal
+  
+  2) Add `mavenLocal()` to your project repositories and depend on the artifact:
+  
+  - Gradle (Kotlin DSL)
+    
+    repositories { mavenLocal(); mavenCentral() }
+    dependencies { implementation("com.code972.hebmorph:hebmorph-lucene:10.3.1") }
+  
+  - Maven
+    
+    <dependency>
+      <groupId>com.code972.hebmorph</groupId>
+      <artifactId>hebmorph-lucene</artifactId>
+      <version>10.3.1</version>
+    </dependency>
 
-For the analyzer support, get hebmorph-lucene:
+  The artifact version is aligned with Lucene’s version (see `gradle/libs.versions.toml`).
 
-```
-        <dependency>
-            <groupId>com.code972.hebmorph</groupId>
-            <artifactId>hebmorph-lucene</artifactId>
-            <version>6.6.0</version>
-            <scope>compile</scope>
-        </dependency>
-```
+- Optional: configure a remote repository (e.g., GitHub Packages) in `publishing.repositories` if you want to distribute a private or public build.
 
+## Requirements
 
-## Lucene.NET compatibility
+- Java 21+
+- HSpell data files available locally (the `hspell-data-files` directory).
 
-The .NET version of the library is compatible with Lucene.NET version 3.0.3, but has some known bugs that were fixed in the Java version and haven't been ported back yet.
+## Configuring HSpell Data Path
+
+At runtime or during tests, HebMorph tries to resolve the path to `hspell-data-files` dynamically. The resolution order is:
+
+1) Java system property: `-Dhebmorph.hspell.path=/path/to/hspell-data-files`
+2) Environment variable: `HEBMORPH_HSPELL_PATH=/path/to/hspell-data-files`
+3) Common relative paths near the project (e.g. `../hspell-data-files`)
+
+If none is set and the files are not found, tests will fail with a clear error. Place the `hspell-data-files` directory next to the repository root or set one of the overrides above.
+
+## Build
+
+This project uses Gradle with Kotlin DSL and a centralized version catalog (`gradle/libs.versions.toml`).
+
+- Build: `./gradlew build`
+- Run tests (ensure HSpell data path is configured as above): `./gradlew test`
+
+## Using the Analyzers (Lucene)
+
+The primary analyzers are under `org.apache.lucene.analysis.hebrew`:
+
+- `HebrewIndexingAnalyzer` for indexing
+- `HebrewQueryAnalyzer` and `HebrewQueryLightAnalyzer` for queries
+- `HebrewExactAnalyzer` for exact match use‑cases
+
+See the test sources for usage examples.
+
+## Recent Changes
+
+- Build migrated to Gradle Kotlin DSL; configuration streamlined.
+- Centralized dependency management via `gradle/libs.versions.toml`.
+- Modernized Java target (Java 21) and updated Lucene dependency.
+- Dynamic resolution of `hspell-data-files` path via system property or environment variable.
+- Removed legacy .NET code and outdated components.
 
 ## License
 
-HebMorph is copyright (C) 2010-2015, Itamar Syn-Hershko.
-HebMorph currently relies on Hspell, copyright (C) 2000-2013, Nadav Har'El and Dan Kenigsberg (http://hspell.ivrix.org.il/).
+HebMorph is copyright (C) 2010–2015, Itamar Syn‑Hershko.
+HebMorph relies on Hspell, copyright (C) 2000–2013, Nadav Har'El and Dan Kenigsberg (http://hspell.ivrix.org.il/).
 
-It is released to the public licensed under the GNU Affero General Public License v3. See the LICENSE file included in this distribution. Note that not only the programs in the distribution, but also the
-dictionary files and the generated word lists, are licensed under the AGPL.
-There is no warranty of any kind for the contents of this distribution.
+It is released under the GNU Affero General Public License v3. See the LICENSE file. Note that not only the programs in the distribution, but also the dictionary files and the generated word lists, are licensed under the AGPL. There is no warranty of any kind for the contents of this distribution.
